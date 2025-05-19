@@ -97,8 +97,6 @@ public class pestañaMain extends javax.swing.JFrame {
         origenField = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         destinoField = new javax.swing.JTextField();
-        precioField = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -205,9 +203,6 @@ public class pestañaMain extends javax.swing.JFrame {
         jLabel8.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
         jLabel8.setText("Destino");
 
-        jLabel9.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
-        jLabel9.setText("Precio");
-
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -228,11 +223,7 @@ public class pestañaMain extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel8)
-                            .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel9)
-                            .addComponent(precioField, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(583, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -255,11 +246,7 @@ public class pestañaMain extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(precioField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(287, Short.MAX_VALUE))
         );
 
@@ -321,7 +308,6 @@ public class pestañaMain extends javax.swing.JFrame {
                 
                 origenField.setText(vuelo.getString("origen"));
                 destinoField.setText(vuelo.getString("destino"));
-                precioField.setText(String.valueOf(vuelo.getInt("precio")));
                 
                 int op = JOptionPane.showConfirmDialog(rootPane, "Vuelo encontrado, te gustaría reservar un boleto?");
                 
@@ -336,7 +322,6 @@ public class pestañaMain extends javax.swing.JFrame {
                 if (op == JOptionPane.NO_OPTION) {
                     origenField.setText("");
                     destinoField.setText("");
-                    precioField.setText("");
                     labelId.setText("");
                     
                     return;
@@ -379,7 +364,6 @@ public class pestañaMain extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -388,7 +372,6 @@ public class pestañaMain extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField labelId;
     private javax.swing.JTextField origenField;
-    private javax.swing.JTextField precioField;
     private javax.swing.JButton searchBtt;
     private javax.swing.JTable tablaVuelos;
     // End of variables declaration//GEN-END:variables

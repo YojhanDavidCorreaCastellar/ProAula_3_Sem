@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package view;
+import java.util.Random;
 import javax.swing.JOptionPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import view.pestañaMain;
  *
  * @author YOJHAN DAVID
  */
+
 public class pestañaReserva extends javax.swing.JFrame {
 
     /**
@@ -22,7 +24,7 @@ public class pestañaReserva extends javax.swing.JFrame {
         initComponents();
     }
     
-    String jsonData = """
+    String jsonDataFly = """
         [
             {"codigo": "CA@101!", "origen": "Cartagena", "destino": "Bogot\u00e1", "duracion": "1h 30m", "fechaHora": "2025-03-25T08:00", "precio": 150000, "avion": "Airbus A320"},
             {"codigo": "CA@102!", "origen": "Bogot\u00e1", "destino": "Cartagena", "duracion": "1h 30m", "fechaHora": "2025-03-25T10:30", "precio": 140000, "avion": "Boeing 737"},
@@ -40,7 +42,6 @@ public class pestañaReserva extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         reservaId = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
@@ -52,11 +53,16 @@ public class pestañaReserva extends javax.swing.JFrame {
         confirmBtt = new javax.swing.JToggleButton();
         jLabel7 = new javax.swing.JLabel();
         fechaField = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        duracionField = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        avionField = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        asientoField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jLabel1.setFont(new java.awt.Font("JetBrains Mono", 0, 36)); // NOI18N
-        jLabel1.setText("CaribeAirlines");
 
         jLabel2.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
         jLabel2.setText("Ingrese el ID del vuelo nuevamente:");
@@ -71,7 +77,7 @@ public class pestañaReserva extends javax.swing.JFrame {
         jLabel8.setText("Destino");
 
         confirmBtt.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
-        confirmBtt.setText("OK");
+        confirmBtt.setText("GENERAR FACTURA");
         confirmBtt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 confirmBttActionPerformed(evt);
@@ -81,6 +87,21 @@ public class pestañaReserva extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
         jLabel7.setText("Fecha / Hora");
 
+        jLabel3.setFont(new java.awt.Font("JetBrains Mono", 0, 24)); // NOI18N
+        jLabel3.setText("Factura");
+
+        jLabel4.setFont(new java.awt.Font("JetBrains Mono", 0, 36)); // NOI18N
+        jLabel4.setText("CaribeAirlines");
+
+        jLabel10.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
+        jLabel10.setText("Duracion");
+
+        jLabel11.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
+        jLabel11.setText("Avion");
+
+        jLabel12.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
+        jLabel12.setText("Asiento");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -88,7 +109,6 @@ public class pestañaReserva extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(reservaId, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -106,61 +126,146 @@ public class pestañaReserva extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel9)
                             .addComponent(precioField, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jLabel7)
-                    .addComponent(fechaField, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(fechaField, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addComponent(duracionField, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel11)
+                            .addComponent(avionField, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel12)
+                    .addComponent(asientoField, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(583, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2)
+                .addGap(25, 25, 25)
+                .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(reservaId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(confirmBtt))
-                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(origenField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(reservaId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(confirmBtt))
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(origenField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(destinoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(precioField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fechaField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(duracionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel9)
+                        .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(precioField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(avionField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel7)
+                .addComponent(jLabel12)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(fechaField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addComponent(asientoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(171, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+private String generarAsientoAleatorio() {
+    Random random = new Random();
+    StringBuilder asiento = new StringBuilder();
+    
+    for (int i = 0; i < 5; i++) {
+        if (random.nextBoolean()) {
+            char letra = (char) (random.nextInt(26) + 'A');
+            asiento.append(letra);
+        } else {
+            int numero = random.nextInt(10);
+            asiento.append(numero);
+        }
+    }
+    
+    return asiento.toString();
+}
+    
     private void confirmBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmBttActionPerformed
         // TODO add your handling code here:
         
+            String idVuelo = reservaId.getText();
+    
+    if (idVuelo.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor ingrese un id de vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
     try {
-        JSONArray vuelos = new JSONArray(jsonData);
+        JSONArray vuelos = new JSONArray(jsonDataFly);
+        boolean encontrado = false;
 
         for (int i = 0; i < vuelos.length(); i++) {
             JSONObject vuelo = vuelos.getJSONObject(i);
-            
-            origenField.setText(vuelo.getString("origen"));
-            destinoField.setText(vuelo.getString("destino"));
-            precioField.setText(String.valueOf(vuelo.getInt("precio")));
-            fechaField.setText(vuelo.getString("fechaHora"));
+
+            if (vuelo.getString("codigo").equalsIgnoreCase(idVuelo)) {
+                encontrado = true;
+                
+                // Generar asiento aleatorio
+                String asientoAleatorio = generarAsientoAleatorio();
+                JSONObject jsonAsiento = new JSONObject();
+                jsonAsiento.put("asiento", asientoAleatorio);
+                asientoField.setText(asientoAleatorio); // Mostrar solo el asiento, no el JSON completo
+                
+                // Llenar los campos con los datos del vuelo encontrado
+                origenField.setText(vuelo.getString("origen"));
+                destinoField.setText(vuelo.getString("destino"));
+                precioField.setText(String.valueOf(vuelo.getInt("precio")));
+                fechaField.setText(vuelo.getString("fechaHora"));
+                duracionField.setText(vuelo.getString("duracion"));
+                avionField.setText(vuelo.getString("avion"));
+                
+                break; // Salir del bucle una vez encontrado el vuelo
+            }
         }
-    }  catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Ocurrió un error al procesar los datos del vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
+        
+        
+
+        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, 
+                "No se encontró ningún vuelo con el código especificado.", 
+                "Vuelo no encontrado", 
+                JOptionPane.WARNING_MESSAGE);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, 
+            "Ocurrió un error al procesar los datos del vuelo.", 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     }
         
@@ -202,11 +307,18 @@ public class pestañaReserva extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField asientoField;
+    private javax.swing.JTextField avionField;
     private javax.swing.JToggleButton confirmBtt;
     private javax.swing.JTextField destinoField;
+    private javax.swing.JTextField duracionField;
     private javax.swing.JTextField fechaField;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
