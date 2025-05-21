@@ -5,9 +5,12 @@
 package view;
 
 import javax.swing.JOptionPane;
-import model.Cliente;
-import model.userConect;
-import model.dbConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import model.dbConect;
 
  
 public class RegistroClientes extends javax.swing.JFrame {
@@ -40,8 +43,6 @@ public class RegistroClientes extends javax.swing.JFrame {
         usuarioBtx = new javax.swing.JTextField();
         Registrarbtl = new javax.swing.JButton();
         VolverBtl = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
-        userNameBtx = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -80,15 +81,12 @@ public class RegistroClientes extends javax.swing.JFrame {
         VolverBtl.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
         VolverBtl.setText("VOLVER");
 
-        jLabel6.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
-        jLabel6.setText("UserName:");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(236, 236, 236)
+                .addGap(225, 225, 225)
                 .addComponent(Registrarbtl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(VolverBtl, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -97,7 +95,6 @@ public class RegistroClientes extends javax.swing.JFrame {
                 .addGap(79, 79, 79)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel6)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                             .addComponent(emailBtx, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -113,9 +110,8 @@ public class RegistroClientes extends javax.swing.JFrame {
                                 .addComponent(jLabel5)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
-                                    .addComponent(contraseñaBtx, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)))))
-                    .addComponent(userNameBtx, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(89, Short.MAX_VALUE))
+                                    .addComponent(contraseñaBtx, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))))
+                .addContainerGap(353, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -128,23 +124,19 @@ public class RegistroClientes extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(jLabel3))
-                        .addGap(47, 47, 47)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(usuarioBtx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(contraseñaBtx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(47, 47, 47)
+                        .addGap(76, 76, 76)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5))
-                        .addGap(47, 47, 47)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(emailBtx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(celularBtx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(47, 47, 47)
-                        .addComponent(jLabel6)
-                        .addGap(27, 27, 27)
-                        .addComponent(userNameBtx, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 150, Short.MAX_VALUE)
                         .addComponent(VolverBtl, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(26, 26, 26))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -163,31 +155,99 @@ public class RegistroClientes extends javax.swing.JFrame {
     }//GEN-LAST:event_contraseñaBtxActionPerformed
 
     private void RegistrarbtlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegistrarbtlActionPerformed
-       // Obtener datos de los campos
-String nombre = usuarioBtx.getText();
-    String email = emailBtx.getText();
-    String contrasena = contraseñaBtx.getText();
-    String celular = celularBtx.getText();
-    String userName = celularBtx.getText(); // Campo para el username
+    // Obtener datos de los campos
+    String usuario = usuarioBtx.getText().trim();
+    String email = emailBtx.getText().trim();
+    String contraseña = contraseñaBtx.getText();
+    String celular = celularBtx.getText().trim();
 
-    // Crear un objeto Cliente (heredará los campos de Usuario)
-    Cliente nuevoCliente = new Cliente(
-        celular, 
-        userName, 
-        0, // El ID se generará automáticamente en la base de datos
-        nombre, 
-        email, 
-        contrasena, 
-        new java.util.Date()
-    );
+    // Validación 1: Campos vacíos
+    if (usuario.isEmpty() || email.isEmpty() || contraseña.isEmpty() || celular.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios", "Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // Validación 2: Nombre de usuario
+    if (!usuario.matches("^[a-zA-Z0-9_]{4,20}$")) {
+        JOptionPane.showMessageDialog(null, 
+            "El usuario debe tener:\n- Entre 4 y 20 caracteres\n- Solo letras, números y guiones bajos", 
+            "Error en usuario", 
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // Validación 3: Email
+    if (!email.matches("^[\\w.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$")) {
+        JOptionPane.showMessageDialog(null, 
+            "Ingrese un email válido\nEjemplo: usuario@dominio.com", 
+            "Error en email", 
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // Validación 4: Contraseña
+    if (contraseña.length() < 8) {
+        JOptionPane.showMessageDialog(null, 
+            "La contraseña debe tener al menos 8 caracteres", 
+            "Contraseña insegura", 
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // Validación 5: Celular (para Colombia)
+    if (!celular.matches("^3[0-9]{9}$")) {
+        JOptionPane.showMessageDialog(null, 
+            "El celular debe:\n- Comenzar con 3\n- Tener 10 dígitos\n- Solo números", 
+            "Error en celular", 
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-    userConect conect = new userConect();
-    boolean exito = conect.registrarCliente(nuevoCliente);
+    // Conexión a la base de datos
+    dbConect db = new dbConect();
+    try (Connection cn = db.conectar()) { 
+        // Verificar si el usuario ya existe
+        String checkSql = "SELECT usuario FROM usuarioss WHERE usuario = ? OR email = ?";
+        try (PreparedStatement checkPst = cn.prepareStatement(checkSql)) {
+            checkPst.setString(1, usuario);
+            checkPst.setString(2, email);
+            try (ResultSet rs = checkPst.executeQuery()) {
+                if (rs.next()) {
+                    JOptionPane.showMessageDialog(null, 
+                        "El usuario o email ya están registrados", 
+                        "Error de registro", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        }
 
-    if (exito) {
-        JOptionPane.showMessageDialog(this, "¡Cliente registrado exitosamente!");
-    } else {
-        JOptionPane.showMessageDialog(this, "Error al registrar cliente.");
+        // Insertar nuevo usuario
+        String insertSql = "INSERT INTO usuarioss (usuario, email, contraseña, celular, rol) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = cn.prepareStatement(insertSql)) {
+            pst.setString(1, usuario);
+            pst.setString(2, email);
+            pst.setString(3, contraseña); 
+            pst.setString(4, celular);
+            pst.setString(5, "cliente");
+
+            int rowsInserted = pst.executeUpdate();
+            if (rowsInserted > 0) {
+                JOptionPane.showMessageDialog(null, 
+                    "¡Registro exitoso!\nBienvenido " + usuario, 
+                    "Éxito", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                
+                limpiarCampos();
+                this.dispose();
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, 
+            "Error al registrar: " + e.getMessage(), 
+            "Error de base de datos", 
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
     }
 }
 
@@ -197,7 +257,6 @@ private void limpiarCampos() {
     contraseñaBtx.setText("");
     emailBtx.setText("");
     celularBtx.setText("");
-    userNameBtx.setText("");
     }//GEN-LAST:event_RegistrarbtlActionPerformed
 
     /**
@@ -246,9 +305,7 @@ private void limpiarCampos() {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField userNameBtx;
     private javax.swing.JTextField usuarioBtx;
     // End of variables declaration//GEN-END:variables
 }
