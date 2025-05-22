@@ -15,7 +15,8 @@ public class pestañaAdmin extends javax.swing.JFrame {
      * Creates new form pestañaAdmin
      */
     public pestañaAdmin() {
-        initComponents();
+       initComponents();
+    this.setLocationRelativeTo(null);
     }
 
     /**

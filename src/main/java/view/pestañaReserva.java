@@ -21,7 +21,8 @@ public class pestañaReserva extends javax.swing.JFrame {
      * Creates new form pestañaReserva
      */
     public pestañaReserva() {
-        initComponents();
+       initComponents();
+    this.setLocationRelativeTo(null);
     }
     
     String jsonDataFly = """

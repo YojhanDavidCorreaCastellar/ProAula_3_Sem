@@ -21,6 +21,7 @@ public class pestañaMain extends javax.swing.JFrame {
     public pestañaMain() {
         initComponents();
         cargarDatos();
+        this.setLocationRelativeTo(null);
     }
     
     private void cargarDatos() {

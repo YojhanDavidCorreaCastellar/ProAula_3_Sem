@@ -27,12 +27,6 @@
             <version>5.147</version>
         </dependency>
         <dependency>
-            <groupId>SINMARIDO</groupId>
-            <artifactId>org-json</artifactId>
-            <version>10.2.3</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>AbsoluteLayout</groupId>
             <artifactId>AbsoluteLayout</artifactId>
             <version>1-0-0</version>
