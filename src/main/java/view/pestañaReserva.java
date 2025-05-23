@@ -4,8 +4,14 @@
  * and open the template in the editor.
  */
 package view;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 import javax.swing.JOptionPane;
+import model.dbConect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import view.pestañaMain;
@@ -16,24 +22,204 @@ import view.pestañaMain;
  */
 
 public class pestañaReserva extends javax.swing.JFrame {
+    
+    private String codigoVueloActual;
+    private pestañaMain parentWindow;
+    private int idUsuarioActual;
 
-    /**
-     * Creates new form pestañaReserva
-     */
-    public pestañaReserva() {
-       initComponents();
+public pestañaReserva(pestañaMain parent, String codigoVuelo) {
+    this.parentWindow = parent;
+    this.codigoVueloActual = codigoVuelo;
+    
+    initComponents();
     this.setLocationRelativeTo(null);
+    this.idUsuarioActual = obtenerIdUsuarioActual();
+    
+    reservaId.setText(codigoVuelo);
+    reservaId.setEditable(false);
+    
+    cargarDatosVuelo();
+    generarAsientoAleatorio();
+}
+
+    pestañaReserva() {
     }
     
-    String jsonDataFly = """
-        [
-            {"codigo": "CA@101!", "origen": "Cartagena", "destino": "Bogot\u00e1", "duracion": "1h 30m", "fechaHora": "2025-03-25T08:00", "precio": 150000, "avion": "Airbus A320"},
-            {"codigo": "CA@102!", "origen": "Bogot\u00e1", "destino": "Cartagena", "duracion": "1h 30m", "fechaHora": "2025-03-25T10:30", "precio": 140000, "avion": "Boeing 737"},
-            {"codigo": "CA@103!", "origen": "Cartagena", "destino": "Medell\u00edn", "duracion": "2h 00m", "fechaHora": "2025-03-25T13:00", "precio": 280000, "avion": "Airbus A319"}
-        ]
-    """;    
-           
+        private void cargarDatosVuelo() {
+        try (Connection conn = dbConect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(
+                 "SELECT origen, destino, precio, fecha_hora, duracion, avion " +
+                 "FROM vuelos WHERE codigo = ?")) {
+            
+            pst.setString(1, codigoVueloActual);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                origenField.setText(rs.getString("origen"));
+                destinoField.setText(rs.getString("destino"));
+                precioField.setText(String.format("$%,.2f", rs.getDouble("precio")));
+                fechaField.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(rs.getTimestamp("fecha_hora")));
+                duracionField.setText(rs.getString("duracion"));
+                avionField.setText(rs.getString("avion"));
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al cargar datos del vuelo: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
+    private void generarAsientoAleatorio() {
+        Random random = new Random();
+        int fila = random.nextInt(30) + 1;
+        char letra = (char) (random.nextInt(6) + 'A');
+        asientoField.setText(fila + String.valueOf(letra));
+    }
+
+    private void confirmarReserva() {
+        String asiento = asientoField.getText().trim();
+        
+        if (asiento.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "No se ha generado un asiento válido", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try (Connection conn = dbConect.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // 1. Verificar disponibilidad
+            if (!verificarDisponibilidad(conn)) {
+                conn.rollback();
+                return;
+            }
+            
+            // 2. Insertar reserva
+            try (PreparedStatement pst = conn.prepareStatement(
+                 "INSERT INTO reservas (numero_vuelo, id_user, asiento, nombre_cliente) VALUES (?, ?, ?, ?)")) {
+    
+                    pst.setString(1, codigoVueloActual);
+                    pst.setInt(2, idUsuarioActual);
+                    pst.setString(3, asiento);
+                    pst.setString(4, obtenerNombreCliente(idUsuarioActual));
+                
+                int filasInsertadas = pst.executeUpdate();
+                
+                if (filasInsertadas == 0) {
+                    throw new SQLException("No se pudo crear la reserva");
+                }
+            }
+            
+            try (PreparedStatement pst = conn.prepareStatement(
+                "UPDATE vuelos SET pasajeros_registrados = pasajeros_registrados + 1 " +
+                "WHERE codigo = ? AND pasajeros_registrados < capacidad")) {
+                
+                pst.setString(1, codigoVueloActual);
+                int updated = pst.executeUpdate();
+                
+                if (updated == 0) {
+                    throw new SQLException("No se pudo actualizar el contador de pasajeros");
+                }
+            }
+            
+            conn.commit();
+            
+            JOptionPane.showMessageDialog(this, 
+                """
+                Reserva confirmada exitosamente!
+                Vuelo: """ + codigoVueloActual + "\n" +
+                "Asiento: " + asiento + "\n" +
+                "ID Usuario: " + idUsuarioActual,
+                "Reserva Exitosa",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            if (parentWindow != null) {
+                parentWindow.refrescarTablaVuelos();
+            }
+            
+            this.dispose();
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al confirmar reserva: " + e.getMessage(), 
+                "Error de Base de Datos", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private boolean verificarDisponibilidad(Connection conn) throws SQLException {
+        try (PreparedStatement pst = conn.prepareStatement(
+            "SELECT capacidad, pasajeros_registrados FROM vuelos WHERE codigo = ?")) {
+            
+            pst.setString(1, codigoVueloActual);
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                int capacidad = rs.getInt("capacidad");
+                int pasajeros = rs.getInt("pasajeros_registrados");
+                
+                if (pasajeros >= capacidad) {
+                    JOptionPane.showMessageDialog(this, 
+                        "Vuelo completo. No hay asientos disponibles.", 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+            return true;
+        }
+    }  
+    
+private int obtenerIdUsuarioActual() {
+    try {
+        String input = JOptionPane.showInputDialog(this,
+            "Ingrese su NOMBRE DE USUARIO (ej: yojhancto):",
+            "Autenticación",
+            JOptionPane.QUESTION_MESSAGE);
+        
+        if (input == null || input.trim().isEmpty()) {
+            throw new RuntimeException("Usuario no proporcionado");
+        }
+        
+        // Buscar el ID basado en el nombre de usuario
+        try (Connection conn = dbConect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(
+                 "SELECT id_usuario FROM usuarioss WHERE usuario = ?")) {
+            
+            pst.setString(1, input.trim());
+            ResultSet rs = pst.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("id_usuario"); // Asumiendo que cambiaste a tipo numérico
+            }
+            throw new RuntimeException("Usuario no encontrado");
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error: " + e.getMessage(),
+            "Error de autenticación",
+            JOptionPane.ERROR_MESSAGE);
+        throw new RuntimeException("Autenticación fallida");
+    }
+}
+        
+private String obtenerNombreCliente(int idUsuario) throws SQLException {
+    try (Connection conn = dbConect.getConnection();
+         PreparedStatement pst = conn.prepareStatement(
+             "SELECT usuario FROM usuarioss WHERE id_usuario = ?")) {
+        
+        pst.setInt(1, idUsuario);
+        ResultSet rs = pst.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getString("usuario"); // Usamos la columna 'usuario'
+        }
+        throw new SQLException("Usuario no encontrado");
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -199,76 +385,24 @@ public class pestañaReserva extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     
-private String generarAsientoAleatorio() {
-    Random random = new Random();
-    StringBuilder asiento = new StringBuilder();
-    
-    for (int i = 0; i < 5; i++) {
-        if (random.nextBoolean()) {
-            char letra = (char) (random.nextInt(26) + 'A');
-            asiento.append(letra);
-        } else {
-            int numero = random.nextInt(10);
-            asiento.append(numero);
-        }
-    }
-    
-    return asiento.toString();
-}
-    
     private void confirmBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmBttActionPerformed
         // TODO add your handling code here:
-        
-            String idVuelo = reservaId.getText();
-    
-    if (idVuelo.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingrese un id de vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    try {
-        JSONArray vuelos = new JSONArray(jsonDataFly);
-        boolean encontrado = false;
-
-        for (int i = 0; i < vuelos.length(); i++) {
-            JSONObject vuelo = vuelos.getJSONObject(i);
-
-            if (vuelo.getString("codigo").equalsIgnoreCase(idVuelo)) {
-                encontrado = true;
-                
-                // Generar asiento aleatorio
-                String asientoAleatorio = generarAsientoAleatorio();
-                JSONObject jsonAsiento = new JSONObject();
-                jsonAsiento.put("asiento", asientoAleatorio);
-                asientoField.setText(asientoAleatorio); // Mostrar solo el asiento, no el JSON completo
-                
-                // Llenar los campos con los datos del vuelo encontrado
-                origenField.setText(vuelo.getString("origen"));
-                destinoField.setText(vuelo.getString("destino"));
-                precioField.setText(String.valueOf(vuelo.getInt("precio")));
-                fechaField.setText(vuelo.getString("fechaHora"));
-                duracionField.setText(vuelo.getString("duracion"));
-                avionField.setText(vuelo.getString("avion"));
-                
-                break; // Salir del bucle una vez encontrado el vuelo
-            }
-        }
-        
-        
-
-        if (!encontrado) {
+             if (codigoVueloActual == null || codigoVueloActual.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
-                "No se encontró ningún vuelo con el código especificado.", 
-                "Vuelo no encontrado", 
-                JOptionPane.WARNING_MESSAGE);
+                "No se ha identificado correctamente el vuelo", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, 
-            "Ocurrió un error al procesar los datos del vuelo.", 
-            "Error", 
-            JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
-    }
+        
+        int opcion = JOptionPane.showConfirmDialog(this,
+            "¿Confirmar reserva para el vuelo " + codigoVueloActual + "?\nAsiento: " + asientoField.getText(),
+            "Confirmar Reserva",
+            JOptionPane.YES_NO_OPTION);
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            confirmarReserva();
+        }
         
     }//GEN-LAST:event_confirmBttActionPerformed
 
@@ -328,4 +462,5 @@ private String generarAsientoAleatorio() {
     private javax.swing.JTextField precioField;
     private javax.swing.JTextField reservaId;
     // End of variables declaration//GEN-END:variables
+
 }

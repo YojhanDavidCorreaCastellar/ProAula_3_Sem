@@ -4,8 +4,17 @@
  * and open the template in the editor.
  */
 package view;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.TableColumnModel;
+import model.dbConect;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,55 +29,87 @@ public class pestañaMain extends javax.swing.JFrame {
      */
     public pestañaMain() {
         initComponents();
-        cargarDatos();
-        this.setLocationRelativeTo(null);
+
+        DefaultTableModel model = new DefaultTableModel(
+        new Object[][]{}, 
+        new String[]{
+            "Código", "Origen", "Destino", "Duración", 
+            "Fecha/Hora", "Precio", "Avión", "Disponibilidad", "Estado"
+        }
+    ) {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false; // Hacer que ninguna celda sea editable
+        }
+    };
+    cargarDatos();
+    tablaVuelos.setModel(model);
+    
+    TableColumnModel columnModel = tablaVuelos.getColumnModel();
+    columnModel.getColumn(0).setPreferredWidth(80);  // Código
+    columnModel.getColumn(1).setPreferredWidth(100); // Origen
+    columnModel.getColumn(2).setPreferredWidth(100); // Destino
+    columnModel.getColumn(3).setPreferredWidth(80);  // Duración
+    columnModel.getColumn(4).setPreferredWidth(150); // Fecha/Hora
+    columnModel.getColumn(5).setPreferredWidth(100); // Precio
+    columnModel.getColumn(6).setPreferredWidth(120); // Avión
+    columnModel.getColumn(7).setPreferredWidth(120); // Disponibilidad
+    columnModel.getColumn(8).setPreferredWidth(100); // Estado
+
     }
     
-    private void cargarDatos() {
+private void cargarDatos() {
+    btnActualizar.setText("ACTUALIZANDO...");
+    btnActualizar.setEnabled(false);
+    
+    SwingUtilities.invokeLater(() -> {
+        DefaultTableModel model = (DefaultTableModel) tablaVuelos.getModel();
+        model.setRowCount(0); // Limpiar tabla
         
-        String jsonData;
-        jsonData = """
-                   [
-                       {"codigo": "CA@101!", "origen": "Cartagena", "destino": "Bogot\u00e1", "duracion": "1h 30m", "fechaHora": "2025-03-25T08:00", "precio": 150000, "avion": "Airbus A320"},
-                       {"codigo": "CA@102!", "origen": "Bogot\u00e1", "destino": "Cartagena", "duracion": "1h 30m", "fechaHora": "2025-03-25T10:30", "precio": 140000, "avion": "Boeing 737"},
-                       {"codigo": "CA@103!", "origen": "Cartagena", "destino": "Medell\u00edn", "duracion": "2h 00m", "fechaHora": "2025-03-25T13:00", "precio": 280000, "avion": "Airbus A319"}
-                   ]
-                   """;
-        // Modelo para la tabla
-        DefaultTableModel table = new DefaultTableModel();
-        table.addColumn("Código");
-        table.addColumn("Origen");
-        table.addColumn("Destino");
-        table.addColumn("Duracion");
-        table.addColumn("Fecha y Hora");
-        table.addColumn("Precio");
-        table.addColumn("Avion");
-        
-        tablaVuelos.setModel(table);
-        
-            try {
-                JSONArray vuelos = new JSONArray(jsonData);
-
-        // Recorrer el JsonArray y añadir las filas
-        for (int i = 0; i < vuelos.length(); i++) {
-            JSONObject vuelo = vuelos.getJSONObject(i);
-            Object[] fila = {
-                vuelo.getString("codigo"),
-                vuelo.getString("origen"),
-                vuelo.getString("destino"),
-                vuelo.getString("duracion"),
-                vuelo.getString("fechaHora"),
-                vuelo.getDouble("precio"),
-                vuelo.getString("avion")
-            };
-            table.addRow(fila);
+        try (Connection conn = dbConect.getConnection();
+             PreparedStatement pst = conn.prepareStatement(
+                 "SELECT codigo, origen, destino, duracion, fecha_hora, " +
+                 "precio, avion, capacidad, pasajeros_registrados " +
+                 "FROM vuelos ORDER BY fecha_hora");
+             ResultSet rs = pst.executeQuery()) {
+            
+            while (rs.next()) {
+                String codigo = rs.getString("codigo");
+                String origen = rs.getString("origen");
+                String destino = rs.getString("destino");
+                String duracion = rs.getString("duracion");
+                String fechaHora = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(rs.getTimestamp("fecha_hora"));
+                double precio = rs.getDouble("precio");
+                String avion = rs.getString("avion");
+                int capacidad = rs.getInt("capacidad");
+                int pasajeros = rs.getInt("pasajeros_registrados");
+                
+                String disponibilidad = pasajeros + "/" + capacidad;
+                double porcentaje = (double) pasajeros / capacidad * 100;
+                String estado = (porcentaje >= 90) ? "LLENO" : "DISPONIBLE";
+                
+                model.addRow(new Object[]{
+                    codigo, origen, destino, duracion,
+                    fechaHora, String.format("$%,.2f", precio),
+                    avion, disponibilidad, estado
+                });
+            }
+            
+            tablaVuelos.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                "Error al cargar datos:\n" + e.getMessage(),
+                "Error de base de datos",
+                JOptionPane.ERROR_MESSAGE);
+        } finally {
+            btnActualizar.setText("ACTUALIZAR");
+            btnActualizar.setEnabled(true);
+            tablaVuelos.revalidate();
+            tablaVuelos.repaint();
         }
-    } catch (Exception e) {
-        System.out.println("Error al cargar datos desde JSON: " + e.getMessage());
-        e.printStackTrace();
-    }
-        
-    }
+    });
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -89,6 +130,7 @@ public class pestañaMain extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaVuelos = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
+        btnActualizar = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
@@ -156,6 +198,14 @@ public class pestañaMain extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("JetBrains Mono Medium", 0, 12)); // NOI18N
         jLabel2.setText("Estos son los vuelos disponibles:");
 
+        btnActualizar.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
+        btnActualizar.setText("ACTUALIZAR");
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -165,6 +215,8 @@ public class pestañaMain extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
+                .addGap(115, 115, 115)
+                .addComponent(btnActualizar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 688, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -173,11 +225,17 @@ public class pestañaMain extends javax.swing.JFrame {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(8, 8, 8)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addGap(7, 7, 7)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addGap(7, 7, 7))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btnActualizar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -279,68 +337,59 @@ public class pestañaMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchBttActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBttActionPerformed
-        // TODO add your handling code here:
-        
-        String idVuelo = labelId.getText();
-        
-        if (idVuelo.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingrese un id de vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
+     String idVuelo = labelId.getText().trim();
+    
+    if (idVuelo.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor ingrese un código de vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
-        }
+    }
+    
+    try (Connection conn = dbConect.getConnection();
+         PreparedStatement pst = conn.prepareStatement("SELECT * FROM vuelos WHERE codigo = ?")) {
         
-         String jsonData = """
-        [
-            {"codigo": "CA@101!", "origen": "Cartagena", "destino": "Bogot\u00e1", "duracion": "1h 30m", "fechaHora": "2025-03-25T08:00", "precio": 150000, "avion": "Airbus A320"},
-            {"codigo": "CA@102!", "origen": "Bogot\u00e1", "destino": "Cartagena", "duracion": "1h 30m", "fechaHora": "2025-03-25T10:30", "precio": 140000, "avion": "Boeing 737"},
-            {"codigo": "CA@103!", "origen": "Cartagena", "destino": "Medell\u00edn", "duracion": "2h 00m", "fechaHora": "2025-03-25T13:00", "precio": 280000, "avion": "Airbus A319"}
-        ]
-    """;
+        pst.setString(1, idVuelo);
         
-        
-    try {
-        JSONArray vuelos = new JSONArray(jsonData);
-        boolean encontrado = false;
-
-        for (int i = 0; i < vuelos.length(); i++) {
-            JSONObject vuelo = vuelos.getJSONObject(i);
-
-            if (vuelo.getString("codigo").equalsIgnoreCase(idVuelo)) {
-                encontrado = true;
+        try (ResultSet rs = pst.executeQuery()) {
+            if (rs.next()) {
+                origenField.setText(rs.getString("origen"));
+                destinoField.setText(rs.getString("destino"));
                 
-                origenField.setText(vuelo.getString("origen"));
-                destinoField.setText(vuelo.getString("destino"));
-                
-                int op = JOptionPane.showConfirmDialog(rootPane, "Vuelo encontrado, te gustaría reservar un boleto?");
+                int op = JOptionPane.showConfirmDialog(rootPane, 
+                    "Vuelo encontrado, ¿desea reservar?", 
+                    "Confirmación", 
+                    JOptionPane.YES_NO_OPTION);
                 
                 if (op == JOptionPane.YES_OPTION) {
-                    pestañaReserva acceso = new pestañaReserva();
+                    // Cambia esta línea:
+                    pestañaReserva acceso = new pestañaReserva(this, idVuelo);
                     acceso.setVisible(true);
-                    
                     labelId.setText("");
-                    
-                }
-                
-                if (op == JOptionPane.NO_OPTION) {
+                } else {
                     origenField.setText("");
                     destinoField.setText("");
                     labelId.setText("");
-                    
-                    return;
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "No se encontró el vuelo con código: " + idVuelo, 
+                    "No encontrado", 
+                    JOptionPane.WARNING_MESSAGE);
             }
         }
-
-        if (!encontrado) {
-            JOptionPane.showMessageDialog(this, "No se encontró ningún vuelo con el código especificado.", "Vuelo no encontrado", JOptionPane.WARNING_MESSAGE);
-        }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Ocurrió un error al procesar los datos del vuelo.", "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, 
+            "Error al buscar vuelo: " + e.getMessage(), 
+            "Error de base de datos", 
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     }
-    
-        
         
     }//GEN-LAST:event_searchBttActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        // TODO add your handling code here:    btnActualizar.setEnabled(false);
+        cargarDatos();
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -356,6 +405,7 @@ public class pestañaMain extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
     private javax.swing.JTextField destinoField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -376,6 +426,10 @@ public class pestañaMain extends javax.swing.JFrame {
     private javax.swing.JButton searchBtt;
     private javax.swing.JTable tablaVuelos;
     // End of variables declaration//GEN-END:variables
+
+    void refrescarTablaVuelos() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
  
 }

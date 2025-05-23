@@ -145,9 +145,8 @@ public class pestañaLogin extends javax.swing.JFrame {
                                                 .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)))
                                         .addGroup(jPanel1Layout.createSequentialGroup()
                                             .addGap(10, 10, 10)
-                                            .addComponent(login)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 230, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 113, Short.MAX_VALUE))
+                                            .addComponent(login))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(Registerbtl)
@@ -163,22 +162,20 @@ public class pestañaLogin extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(32, 32, 32)
                 .addComponent(jLabel1)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(10, 10, 10)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(70, 70, 70)
                         .addComponent(rolSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(UserL)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
+                        .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(PasswordL)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(passwField, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
+                        .addComponent(passwField, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(login)
                         .addGap(17, 17, 17)
                         .addComponent(jLabel2)
@@ -197,10 +194,9 @@ public class pestañaLogin extends javax.swing.JFrame {
     }//GEN-LAST:event_passwFieldActionPerformed
 
     private void RegisterbtlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RegisterbtlActionPerformed
-        new pestañaMain().setVisible(true); 
-        this.dispose();
+
         
-        RegistroClientes acceso = new RegistroClientes();
+        pestañaRegistro acceso = new pestañaRegistro();
         acceso.setVisible(true);
     }//GEN-LAST:event_RegisterbtlActionPerformed
 
@@ -238,9 +234,6 @@ public class pestañaLogin extends javax.swing.JFrame {
             }
 
             this.dispose();  // Cierra la ventana de inicio de sesión
-        } else {
-            // Mensaje si el login falla
-            JOptionPane.showMessageDialog(null, "Usuario invalido o rol no existente.");
         }
 
     }//GEN-LAST:event_loginActionPerformed

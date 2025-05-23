@@ -12,36 +12,47 @@ public class userSearch {
     public boolean accesoUsuario(String user, String pass, String rol) {
         dbConect db = new dbConect();
         boolean accesoCorrecto = false;
-        Connection cn = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+        
+        // Verificación en tabla 'usuarioss' (ajusta el nombre si es diferente)
+        accesoCorrecto = verificarCredenciales(db, "usuarioss", "usuario", user, pass, rol);
+        
+        // Si es administrador y no se encontró, verificar en tabla 'administradores'
+        if (!accesoCorrecto && rol.equalsIgnoreCase("administrador")) {
+            accesoCorrecto = verificarCredenciales(db, "administradores", "usuario", user, pass, rol);
+        }
+        
+        // Si aún no se encuentra, mostrar mensaje
+        if (!accesoCorrecto) {
+            JOptionPane.showMessageDialog(null, 
+                "Usuario no encontrado o credenciales incorrectas", 
+                "Error de autenticación", 
+                JOptionPane.WARNING_MESSAGE);
+        }
+        
+        return accesoCorrecto;
+    }
 
-        try {
-            cn = db.conectar();
-            String sql = "SELECT usuario, email, contraseña, celular, rol FROM usuarioss WHERE usuario = ? AND contraseña = ? AND rol = ?";
-            pst = cn.prepareStatement(sql);
+    private boolean verificarCredenciales(dbConect db, String tabla, String columnaUsuario, 
+                                        String user, String pass, String rol) {
+        String sql = "SELECT 1 FROM " + tabla + " WHERE " + columnaUsuario + " = ? AND contraseña = ? AND rol = ?";
+        
+        try (Connection cn = db.conectar();
+             PreparedStatement pst = cn.prepareStatement(sql)) {
+            
             pst.setString(1, user);
             pst.setString(2, pass);
             pst.setString(3, rol);
-            rs = pst.executeQuery();
-
-            if (rs.next()) {
-                accesoCorrecto = true;
+            
+            try (ResultSet rs = pst.executeQuery()) {
+                return rs.next(); // Retorna true si encuentra coincidencia
             }
-
+            
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e);
-        } finally {
-            // Cerrar recursos en orden inverso (ResultSet -> PreparedStatement -> Connection)
-            try {
-                if (rs != null) rs.close();
-                if (pst != null) pst.close();
-                if (cn != null) cn.close();
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Error al cerrar conexión: " + e);
-            }
+            JOptionPane.showMessageDialog(null, 
+                "Error al verificar credenciales en tabla " + tabla + ":\n" + e.getMessage(), 
+                "Error de base de datos", 
+                JOptionPane.ERROR_MESSAGE);
+            return false;
         }
-
-        return accesoCorrecto;
     }
 }
